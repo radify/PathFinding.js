@@ -1,5 +1,5 @@
-var Util = require('../core/Util');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import { biBacktrace } from '../core/Util';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Bi-directional Breadth-First-Search path finder.
@@ -9,34 +9,35 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching block corners. Deprecated, use diagonalMovement instead.
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
-function BiBreadthFirstFinder(opt) {
+export default class BiBreadthFirstFinder {
+  constructor(opt) {
     opt = opt || {};
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
     this.diagonalMovement = opt.diagonalMovement;
 
     if (!this.diagonalMovement) {
-        if (!this.allowDiagonal) {
-            this.diagonalMovement = DiagonalMovement.Never;
+      if (!this.allowDiagonal) {
+        this.diagonalMovement = DiagonalMovement.Never;
+      } else {
+        if (this.dontCrossCorners) {
+          this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
         } else {
-            if (this.dontCrossCorners) {
-                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
-            } else {
-                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
-            }
+          this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
         }
+      }
     }
-}
+  }
 
 
-/**
- * Find and return the the path.
- * @return {Array.<[number, number]>} The path, including both start and
- *     end positions.
- */
-BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
+  /**
+   * Find and return the the path.
+   * @return {Array.<[number, number]>} The path, including both start and
+   *     end positions.
+   */
+  findPath(start, end, grid) {
+    var startNode = grid.getNodeAt(start),
+        endNode = grid.getNodeAt(end),
         startOpenList = [], endOpenList = [],
         neighbors, neighbor, node,
         diagonalMovement = this.diagonalMovement,
@@ -71,7 +72,7 @@ BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, g
                 // if this node has been inspected by the reversed search,
                 // then a path is found.
                 if (neighbor.by === BY_END) {
-                    return Util.biBacktrace(node, neighbor);
+                    return biBacktrace(node, neighbor);
                 }
                 continue;
             }
@@ -95,7 +96,7 @@ BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, g
             }
             if (neighbor.opened) {
                 if (neighbor.by === BY_START) {
-                    return Util.biBacktrace(neighbor, node);
+                    return biBacktrace(neighbor, node);
                 }
                 continue;
             }
@@ -108,6 +109,5 @@ BiBreadthFirstFinder.prototype.findPath = function(startX, startY, endX, endY, g
 
     // fail to find the path
     return [];
-};
-
-module.exports = BiBreadthFirstFinder;
+  }
+}

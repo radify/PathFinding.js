@@ -1,10 +1,10 @@
 /**
  * @author imor / https://github.com/imor
  */
-var Heap       = require('heap');
-var Util       = require('../core/Util');
-var Heuristic  = require('../core/Heuristic');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import Heap       from 'heap';
+import Util       from '../core/Util';
+import Heuristic  from '../core/Heuristic';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Base class for the Jump Point Search algorithm
@@ -12,10 +12,10 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * @param {function} opt.heuristic Heuristic function to estimate the distance
  *     (defaults to manhattan).
  */
-function JumpPointFinderBase(opt) {
-    opt = opt || {};
-    this.heuristic = opt.heuristic || Heuristic.manhattan;
-    this.trackJumpRecursion = opt.trackJumpRecursion || false;
+export default function JumpPointFinderBase(opt) {
+  opt = opt || {};
+  this.heuristic = opt.heuristic || Heuristic.manhattan;
+  this.trackJumpRecursion = opt.trackJumpRecursion || false;
 }
 
 /**
@@ -110,5 +110,3 @@ JumpPointFinderBase.prototype._identifySuccessors = function(node) {
         }
     }
 };
-
-module.exports = JumpPointFinderBase;

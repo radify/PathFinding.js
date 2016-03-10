@@ -1,7 +1,6 @@
-var Util       = require('../core/Util');
-var Heuristic  = require('../core/Heuristic');
-var Node       = require('../core/Node');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import Heuristic from '../core/Heuristic';
+import Node from '../core/Node';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Iterative Deeping A Star (IDA*) path-finder.
@@ -29,45 +28,45 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * @param {object} opt.timeLimit Maximum execution time. Use <= 0 for infinite.
  */
 
-function IDAStarFinder(opt) {
-    opt = opt || {};
-    this.allowDiagonal = opt.allowDiagonal;
-    this.dontCrossCorners = opt.dontCrossCorners;
-    this.diagonalMovement = opt.diagonalMovement;
-    this.heuristic = opt.heuristic || Heuristic.manhattan;
-    this.weight = opt.weight || 1;
-    this.trackRecursion = opt.trackRecursion || false;
-    this.timeLimit = opt.timeLimit || Infinity; // Default: no time limit.
+export default class IDAStarFinder {
+
+  constructor(opt) {
+    Object.assign(this, defaults(opt, {
+      heuristic: Heuristic.manhattan,
+      weight: 1,
+      trackRecursion: false,
+      timeLimit: Infinity // Default: no time limit
+    }));
 
     if (!this.diagonalMovement) {
-        if (!this.allowDiagonal) {
-            this.diagonalMovement = DiagonalMovement.Never;
+      if (!this.allowDiagonal) {
+        this.diagonalMovement = DiagonalMovement.Never;
+      } else {
+        if (this.dontCrossCorners) {
+          this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
         } else {
-            if (this.dontCrossCorners) {
-                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
-            } else {
-                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
-            }
+          this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
         }
+      }
     }
 
-    //When diagonal movement is allowed the manhattan heuristic is not admissible
-    //It should be octile instead
+    // When diagonal movement is allowed the manhattan heuristic is not admissible
+    // It should be octile instead
     if (this.diagonalMovement === DiagonalMovement.Never) {
-        this.heuristic = opt.heuristic || Heuristic.manhattan;
+      this.heuristic = opt.heuristic || Heuristic.manhattan;
     } else {
-        this.heuristic = opt.heuristic || Heuristic.octile;
+      this.heuristic = opt.heuristic || Heuristic.octile;
     }
-}
+  }
 
-/**
- * Find and return the the path. When an empty array is returned, either
- * no path is possible, or the maximum execution time is reached.
- *
- * @return {Array.<[number, number]>} The path, including both start and
- *     end positions.
- */
-IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
+  /**
+   * Find and return the the path. When an empty array is returned, either
+   * no path is possible, or the maximum execution time is reached.
+   *
+   * @return {Array.<[number, number]>} The path, including both start and
+   *     end positions.
+   */
+  findPath(start, end, grid) {
     // Used for statistics:
     var nodesVisited = 0;
 
@@ -75,14 +74,10 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var startTime = new Date().getTime();
 
     // Heuristic helper:
-    var h = function(a, b) {
-        return this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
-    }.bind(this);
+    var h = (a, b) => this.heuristic(Math.abs(b.x - a.x), Math.abs(b.y - a.y));
 
     // Step cost from a to b:
-    var cost = function(a, b) {
-        return (a.x === b.x || a.y === b.y) ? 1 : Math.SQRT2;
-    };
+    var cost = (a, b) => (a.x === b.x || a.y === b.y) ? 1 : Math.SQRT2;
 
     /**
      * IDA* search implementation.
@@ -100,21 +95,21 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         nodesVisited++;
 
         // Enforce timelimit:
-        if(this.timeLimit > 0 && new Date().getTime() - startTime > this.timeLimit * 1000) {
-            // Enforced as "path-not-found".
-            return Infinity;
+        if (this.timeLimit > 0 && new Date().getTime() - startTime > this.timeLimit * 1000) {
+          // Enforced as "path-not-found".
+          return Infinity;
         }
 
         var f = g + h(node, end) * this.weight;
 
         // We've searched too deep for this iteration.
-        if(f > cutoff) {
-            return f;
+        if (f > cutoff) {
+          return f;
         }
 
-        if(node == end) {
-            route[depth] = [node.x, node.y];
-            return node;
+        if (node == end) {
+          route[depth] = [node.x, node.y];
+          return node;
         }
 
         var min, t, k, neighbour;
@@ -127,37 +122,36 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         //    return h(a, end) - h(b, end);
         //});
 
-        
         /*jshint -W084 *///Disable warning: Expected a conditional expression and instead saw an assignment
-        for(k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
+        for (k = 0, min = Infinity; neighbour = neighbours[k]; ++k) {
         /*jshint +W084 *///Enable warning: Expected a conditional expression and instead saw an assignment
-            if(this.trackRecursion) {
-                // Retain a copy for visualisation. Due to recursion, this
-                // node may be part of other paths too.
-                neighbour.retainCount = neighbour.retainCount + 1 || 1;
+            if (this.trackRecursion) {
+              // Retain a copy for visualisation. Due to recursion, this
+              // node may be part of other paths too.
+              neighbour.retainCount = neighbour.retainCount + 1 || 1;
 
-                if(neighbour.tested !== true) {
-                    neighbour.tested = true;
-                }
+              if (neighbour.tested !== true) {
+                neighbour.tested = true;
+              }
             }
 
             t = search(neighbour, g + cost(node, neighbour), cutoff, route, depth + 1);
 
-            if(t instanceof Node) {
-                route[depth] = [node.x, node.y];
+            if (t instanceof Node) {
+              route[depth] = [node.x, node.y];
 
-                // For a typical A* linked list, this would work:
-                // neighbour.parent = node;
-                return t;
+              // For a typical A* linked list, this would work:
+              // neighbour.parent = node;
+              return t;
             }
 
             // Decrement count, then determine whether it's actually closed.
-            if(this.trackRecursion && (--neighbour.retainCount) === 0) {
-                neighbour.tested = false;
+            if (this.trackRecursion && (--neighbour.retainCount) === 0) {
+              neighbour.tested = false;
             }
 
-            if(t < min) {
-                min = t;
+            if (t < min) {
+              min = t;
             }
         }
 
@@ -176,7 +170,7 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
     var j, route, t;
 
     // With an overflow protection.
-    for(j = 0; true; ++j) {
+    for (j = 0; true; ++j) {
         //console.log("Iteration: " + j + ", search cut-off value: " + cutOff + ", nodes visited thus far: " + nodesVisited + ".");
 
         route = [];
@@ -185,15 +179,15 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
         t = search(start, 0, cutOff, route, 0);
 
         // Route not possible, or not found in time limit.
-        if(t === Infinity) {
+        if (t === Infinity) {
             return [];
         }
 
         // If t is a node, it's also the end node. Route is now
         // populated with a valid path to the end node.
-        if(t instanceof Node) {
-            //console.log("Finished at iteration: " + j + ", search cut-off value: " + cutOff + ", nodes visited: " + nodesVisited + ".");
-            return route;
+        if (t instanceof Node) {
+          //console.log("Finished at iteration: " + j + ", search cut-off value: " + cutOff + ", nodes visited: " + nodesVisited + ".");
+          return route;
         }
 
         // Try again, this time with a deeper cut-off. The t score
@@ -203,6 +197,5 @@ IDAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
     // This _should_ never to be reached.
     return [];
-};
-
-module.exports = IDAStarFinder;
+  }
+}

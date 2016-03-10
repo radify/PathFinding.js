@@ -1,14 +1,14 @@
 /**
  * @author imor / https://github.com/imor
  */
-var JumpPointFinderBase = require('./JumpPointFinderBase');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import JumpPointFinderBase from './JumpPointFinderBase';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Path finder using the Jump Point Search algorithm allowing only horizontal
  * or vertical movements.
  */
-function JPFNeverMoveDiagonally(opt) {
+export default function JPFNeverMoveDiagonally(opt) {
     JumpPointFinderBase.call(this, opt);
 }
 
@@ -116,5 +116,3 @@ JPFNeverMoveDiagonally.prototype._findNeighbors = function(node) {
 
     return neighbors;
 };
-
-module.exports = JPFNeverMoveDiagonally;

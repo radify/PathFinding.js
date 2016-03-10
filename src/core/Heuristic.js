@@ -2,7 +2,7 @@
  * @namespace PF.Heuristic
  * @description A collection of heuristic functions.
  */
-module.exports = {
+export default class Heuristic {
 
   /**
    * Manhattan distance.
@@ -10,9 +10,9 @@ module.exports = {
    * @param {number} dy - Difference in y.
    * @return {number} dx + dy
    */
-  manhattan: function(dx, dy) {
-      return dx + dy;
-  },
+  static manhattan(dx, dy) {
+    return dx + dy;
+  }
 
   /**
    * Euclidean distance.
@@ -20,9 +20,9 @@ module.exports = {
    * @param {number} dy - Difference in y.
    * @return {number} sqrt(dx * dx + dy * dy)
    */
-  euclidean: function(dx, dy) {
-      return Math.sqrt(dx * dx + dy * dy);
-  },
+  static euclidean(dx, dy) {
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
   /**
    * Octile distance.
@@ -30,10 +30,10 @@ module.exports = {
    * @param {number} dy - Difference in y.
    * @return {number} sqrt(dx * dx + dy * dy) for grids
    */
-  octile: function(dx, dy) {
-      var F = Math.SQRT2 - 1;
-      return (dx < dy) ? F * dx + dy : F * dy + dx;
-  },
+  static octile(dx, dy) {
+    var F = Math.SQRT2 - 1;
+    return (dx < dy) ? F * dx + dy : F * dy + dx;
+  }
 
   /**
    * Chebyshev distance.
@@ -41,8 +41,7 @@ module.exports = {
    * @param {number} dy - Difference in y.
    * @return {number} max(dx, dy)
    */
-  chebyshev: function(dx, dy) {
-      return Math.max(dx, dy);
+  static chebyshev(dx, dy) {
+    return Math.max(dx, dy);
   }
-
-};
+}

@@ -1,18 +1,20 @@
+import Point from "geometry/Point";
+
 /**
  * Backtrace according to the parent records and return the path.
  * (including both start and end nodes)
  * @param {Node} node End node
  * @return {Array.<Array.<number>>} the path
  */
-function backtrace(node) {
-    var path = [[node.x, node.y]];
-    while (node.parent) {
-        node = node.parent;
-        path.push([node.x, node.y]);
-    }
-    return path.reverse();
+export function backtrace(node, parents) {
+  var path = [node];
+
+  while (parents[node]) {
+    node = Point.fromString(parents[node]);
+    path.push(node);
+  }
+  return path.reverse();
 }
-exports.backtrace = backtrace;
 
 /**
  * Backtrace from start and end node, and return the path.
@@ -20,30 +22,26 @@ exports.backtrace = backtrace;
  * @param {Node}
  * @param {Node}
  */
-function biBacktrace(nodeA, nodeB) {
-    var pathA = backtrace(nodeA),
-        pathB = backtrace(nodeB);
-    return pathA.concat(pathB.reverse());
+export function biBacktrace(nodeA, nodeB) {
+  return backtrace(nodeA).concat(backtrace(nodeB).reverse());
 }
-exports.biBacktrace = biBacktrace;
 
 /**
  * Compute the length of the path.
  * @param {Array.<Array.<number>>} path The path
  * @return {number} The length of the path
  */
-function pathLength(path) {
-    var i, sum = 0, a, b, dx, dy;
-    for (i = 1; i < path.length; ++i) {
-        a = path[i - 1];
-        b = path[i];
-        dx = a[0] - b[0];
-        dy = a[1] - b[1];
-        sum += Math.sqrt(dx * dx + dy * dy);
-    }
-    return sum;
+export function pathLength(path) {
+  var i, sum = 0, a, b, dx, dy;
+  for (i = 1; i < path.length; ++i) {
+      a = path[i - 1];
+      b = path[i];
+      dx = a[0] - b[0];
+      dy = a[1] - b[1];
+      sum += Math.sqrt(dx * dx + dy * dy);
+  }
+  return sum;
 }
-exports.pathLength = pathLength;
 
 
 /**
@@ -56,7 +54,7 @@ exports.pathLength = pathLength;
  * @param {number} y1 End y coordinate
  * @return {Array.<Array.<number>>} The coordinates on the line
  */
-function interpolate(x0, y0, x1, y1) {
+export function interpolate(x0, y0, x1, y1) {
     var abs = Math.abs,
         line = [],
         sx, sy, dx, dy, err, e2;
@@ -89,7 +87,6 @@ function interpolate(x0, y0, x1, y1) {
 
     return line;
 }
-exports.interpolate = interpolate;
 
 
 /**
@@ -98,7 +95,7 @@ exports.interpolate = interpolate;
  * @param {Array.<Array.<number>>} path The path
  * @return {Array.<Array.<number>>} expanded path
  */
-function expandPath(path) {
+export function expandPath(path) {
     var expanded = [],
         len = path.length,
         coord0, coord1,
@@ -124,7 +121,6 @@ function expandPath(path) {
 
     return expanded;
 }
-exports.expandPath = expandPath;
 
 
 /**
@@ -133,7 +129,7 @@ exports.expandPath = expandPath;
  * @param {PF.Grid} grid
  * @param {Array.<Array.<number>>} path The path
  */
-function smoothenPath(grid, path) {
+export function smoothenPath(grid, path) {
     var len = path.length,
         x0 = path[0][0],        // path start x
         y0 = path[0][1],        // path start y
@@ -174,7 +170,6 @@ function smoothenPath(grid, path) {
 
     return newPath;
 }
-exports.smoothenPath = smoothenPath;
 
 
 /**
@@ -183,7 +178,7 @@ exports.smoothenPath = smoothenPath;
  * @param {Array.<Array.<number>>} path The path
  * @return {Array.<Array.<number>>} The compressed path
  */
-function compressPath(path) {
+export function compressPath(path) {
 
     // nothing to compress
     if(path.length < 3) {
@@ -228,7 +223,7 @@ function compressPath(path) {
         dy = py - ly;
 
         // normalize
-        sq = Math.sqrt(dx*dx + dy*dy);
+        sq = Math.sqrt(dx * dx + dy * dy);
         dx /= sq;
         dy /= sq;
 
@@ -243,4 +238,7 @@ function compressPath(path) {
 
     return compressed;
 }
-exports.compressPath = compressPath;
+
+export function defaults(val, defs) {
+  return Object.mixin(Object.mixin({}, defs), val || {});
+}

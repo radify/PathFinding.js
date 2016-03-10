@@ -1,15 +1,15 @@
 /**
  * @author imor / https://github.com/imor
  */
-var JumpPointFinderBase = require('./JumpPointFinderBase');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import JumpPointFinderBase from './JumpPointFinderBase';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * Path finder using the Jump Point Search algorithm which moves
  * diagonally only when there is at most one obstacle.
  */
-function JPFMoveDiagonallyIfAtMostOneObstacle(opt) {
-    JumpPointFinderBase.call(this, opt);
+export default function JPFMoveDiagonallyIfAtMostOneObstacle(opt) {
+  JumpPointFinderBase.call(this, opt);
 }
 
 JPFMoveDiagonallyIfAtMostOneObstacle.prototype = new JumpPointFinderBase();
@@ -23,56 +23,53 @@ JPFMoveDiagonallyIfAtMostOneObstacle.prototype.constructor = JPFMoveDiagonallyIf
  *     found, or null if not found
  */
 JPFMoveDiagonallyIfAtMostOneObstacle.prototype._jump = function(x, y, px, py) {
-    var grid = this.grid,
-        dx = x - px, dy = y - py;
+  var grid = this.grid, dx = x - px, dy = y - py;
 
-    if (!grid.isWalkableAt(x, y)) {
-        return null;
+  if (!grid.isWalkableAt(x, y)) {
+    return null;
+  }
+
+  if (this.trackJumpRecursion === true) {
+    grid.getNodeAt(x, y).tested = true;
+  }
+
+  if (grid.getNodeAt(x, y) === this.endNode) {
+    return [x, y];
+  }
+
+  // check for forced neighbors
+  // along the diagonal
+  if (dx !== 0 && dy !== 0) {
+    if ((grid.isWalkableAt(x - dx, y + dy) && !grid.isWalkableAt(x - dx, y)) ||
+      (grid.isWalkableAt(x + dx, y - dy) && !grid.isWalkableAt(x, y - dy))) {
+      return [x, y];
     }
-
-    if(this.trackJumpRecursion === true) {
-        grid.getNodeAt(x, y).tested = true;
+    // when moving diagonally, must check for vertical/horizontal jump points
+    if (this._jump(x + dx, y, x, y) || this._jump(x, y + dy, x, y)) {
+      return [x, y];
     }
-
-    if (grid.getNodeAt(x, y) === this.endNode) {
-        return [x, y];
-    }
-
-    // check for forced neighbors
-    // along the diagonal
-    if (dx !== 0 && dy !== 0) {
-        if ((grid.isWalkableAt(x - dx, y + dy) && !grid.isWalkableAt(x - dx, y)) ||
-            (grid.isWalkableAt(x + dx, y - dy) && !grid.isWalkableAt(x, y - dy))) {
+  }
+  // horizontally/vertically
+  else {
+    if (dx !== 0) { // moving along x
+        if ((grid.isWalkableAt(x + dx, y + 1) && !grid.isWalkableAt(x, y + 1)) ||
+           (grid.isWalkableAt(x + dx, y - 1) && !grid.isWalkableAt(x, y - 1))) {
             return [x, y];
         }
-        // when moving diagonally, must check for vertical/horizontal jump points
-        if (this._jump(x + dx, y, x, y) || this._jump(x, y + dy, x, y)) {
-            return [x, y];
-        }
-    }
-    // horizontally/vertically
-    else {
-        if( dx !== 0 ) { // moving along x
-            if((grid.isWalkableAt(x + dx, y + 1) && !grid.isWalkableAt(x, y + 1)) ||
-               (grid.isWalkableAt(x + dx, y - 1) && !grid.isWalkableAt(x, y - 1))) {
-                return [x, y];
-            }
-        }
-        else {
-            if((grid.isWalkableAt(x + 1, y + dy) && !grid.isWalkableAt(x + 1, y)) ||
-               (grid.isWalkableAt(x - 1, y + dy) && !grid.isWalkableAt(x - 1, y))) {
-                return [x, y];
-            }
-        }
-    }
-
-    // moving diagonally, must make sure one of the vertical/horizontal
-    // neighbors is open to allow the path
-    if (grid.isWalkableAt(x + dx, y) || grid.isWalkableAt(x, y + dy)) {
-        return this._jump(x + dx, y + dy, x, y);
     } else {
-        return null;
+      if ((grid.isWalkableAt(x + 1, y + dy) && !grid.isWalkableAt(x + 1, y)) ||
+         (grid.isWalkableAt(x - 1, y + dy) && !grid.isWalkableAt(x - 1, y))) {
+          return [x, y];
+      }
     }
+  }
+
+  // moving diagonally, must make sure one of the vertical/horizontal
+  // neighbors is open to allow the path
+  if (grid.isWalkableAt(x + dx, y) || grid.isWalkableAt(x, y + dy)) {
+    return this._jump(x + dx, y + dy, x, y);
+  }
+  return null;
 };
 
 /**
@@ -116,7 +113,7 @@ JPFMoveDiagonallyIfAtMostOneObstacle.prototype._findNeighbors = function(node) {
         }
         // search horizontally/vertically
         else {
-            if(dx === 0) {
+            if (dx === 0) {
                 if (grid.isWalkableAt(x, y + dy)) {
                     neighbors.push([x, y + dy]);
                     if (!grid.isWalkableAt(x + 1, y)) {
@@ -126,15 +123,14 @@ JPFMoveDiagonallyIfAtMostOneObstacle.prototype._findNeighbors = function(node) {
                         neighbors.push([x - 1, y + dy]);
                     }
                 }
-            }
-            else {
+            } else {
                 if (grid.isWalkableAt(x + dx, y)) {
                     neighbors.push([x + dx, y]);
                     if (!grid.isWalkableAt(x, y + 1)) {
-                        neighbors.push([x + dx, y + 1]);
+                      neighbors.push([x + dx, y + 1]);
                     }
                     if (!grid.isWalkableAt(x, y - 1)) {
-                        neighbors.push([x + dx, y - 1]);
+                      neighbors.push([x + dx, y - 1]);
                     }
                 }
             }
@@ -142,14 +138,13 @@ JPFMoveDiagonallyIfAtMostOneObstacle.prototype._findNeighbors = function(node) {
     }
     // return all neighbors
     else {
-        neighborNodes = grid.getNeighbors(node, DiagonalMovement.IfAtMostOneObstacle);
-        for (i = 0, l = neighborNodes.length; i < l; ++i) {
-            neighborNode = neighborNodes[i];
-            neighbors.push([neighborNode.x, neighborNode.y]);
-        }
+      neighborNodes = grid.getNeighbors(node, DiagonalMovement.IfAtMostOneObstacle);
+
+      for (i = 0, l = neighborNodes.length; i < l; ++i) {
+        neighborNode = neighborNodes[i];
+        neighbors.push([neighborNode.x, neighborNode.y]);
+      }
     }
 
     return neighbors;
 };
-
-module.exports = JPFMoveDiagonallyIfAtMostOneObstacle;

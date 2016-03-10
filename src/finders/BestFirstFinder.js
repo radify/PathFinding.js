@@ -1,4 +1,4 @@
-var AStarFinder = require('./AStarFinder');
+import AStarFinder from './AStarFinder';
 
 /**
  * Best-First-Search path-finder.
@@ -11,16 +11,11 @@ var AStarFinder = require('./AStarFinder');
  * @param {function} opt.heuristic Heuristic function to estimate the distance
  *     (defaults to manhattan).
  */
-function BestFirstFinder(opt) {
-    AStarFinder.call(this, opt);
+export default class BestFirstFinder extends AStarFinder {
 
+  constructor(opt) {
+    super(opt);
     var orig = this.heuristic;
-    this.heuristic = function(dx, dy) {
-        return orig(dx, dy) * 1000000;
-    };
+    this.heuristic = (dx, dy) => orig(dx, dy) * 1000000;
+  }
 }
-
-BestFirstFinder.prototype = new AStarFinder();
-BestFirstFinder.prototype.constructor = BestFirstFinder;
-
-module.exports = BestFirstFinder;

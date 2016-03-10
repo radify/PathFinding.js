@@ -1,11 +1,11 @@
 /**
  * @author aniero / https://github.com/aniero
  */
-var DiagonalMovement = require('../core/DiagonalMovement');
-var JPFNeverMoveDiagonally = require('./JPFNeverMoveDiagonally');
-var JPFAlwaysMoveDiagonally = require('./JPFAlwaysMoveDiagonally');
-var JPFMoveDiagonallyIfNoObstacles = require('./JPFMoveDiagonallyIfNoObstacles');
-var JPFMoveDiagonallyIfAtMostOneObstacle = require('./JPFMoveDiagonallyIfAtMostOneObstacle');
+import DiagonalMovement from '../core/DiagonalMovement';
+import JPFNeverMoveDiagonally from './JPFNeverMoveDiagonally';
+import JPFAlwaysMoveDiagonally from './JPFAlwaysMoveDiagonally';
+import JPFMoveDiagonallyIfNoObstacles from './JPFMoveDiagonallyIfNoObstacles';
+import JPFMoveDiagonallyIfAtMostOneObstacle from './JPFMoveDiagonallyIfAtMostOneObstacle';
 
 /**
  * Path finder using the Jump Point Search algorithm
@@ -15,17 +15,16 @@ var JPFMoveDiagonallyIfAtMostOneObstacle = require('./JPFMoveDiagonallyIfAtMostO
  * @param {DiagonalMovement} opt.diagonalMovement Condition under which diagonal
  *      movement will be allowed.
  */
-function JumpPointFinder(opt) {
-    opt = opt || {};
-    if (opt.diagonalMovement === DiagonalMovement.Never) {
-        return new JPFNeverMoveDiagonally(opt);
-    } else if (opt.diagonalMovement === DiagonalMovement.Always) {
-        return new JPFAlwaysMoveDiagonally(opt);
-    } else if (opt.diagonalMovement === DiagonalMovement.OnlyWhenNoObstacles) {
-        return new JPFMoveDiagonallyIfNoObstacles(opt);
-    } else {
-        return new JPFMoveDiagonallyIfAtMostOneObstacle(opt);
-    }
-}
+export default function JumpPointFinder(opt) {
+  opt = opt || {};
 
-module.exports = JumpPointFinder;
+  if (opt.diagonalMovement === DiagonalMovement.Never) {
+    return new JPFNeverMoveDiagonally(opt);
+  } else if (opt.diagonalMovement === DiagonalMovement.Always) {
+    return new JPFAlwaysMoveDiagonally(opt);
+  } else if (opt.diagonalMovement === DiagonalMovement.OnlyWhenNoObstacles) {
+    return new JPFMoveDiagonallyIfNoObstacles(opt);
+  } else {
+    return new JPFMoveDiagonallyIfAtMostOneObstacle(opt);
+  }
+}

@@ -1,7 +1,7 @@
-var Heap       = require('heap');
-var Util       = require('../core/Util');
-var Heuristic  = require('../core/Heuristic');
-var DiagonalMovement = require('../core/DiagonalMovement');
+import Heap from 'heap';
+import { biBacktrace } from '../core/Util';
+import Heuristic from '../core/Heuristic';
+import DiagonalMovement from '../core/DiagonalMovement';
 
 /**
  * A* path-finder.
@@ -16,7 +16,9 @@ var DiagonalMovement = require('../core/DiagonalMovement');
  * @param {integer} opt.weight Weight to apply to the heuristic to allow for suboptimal paths, 
  *     in order to speed up the search.
  */
-function BiAStarFinder(opt) {
+export default class BiAStarFinder {
+
+  constructor(opt) {
     opt = opt || {};
     this.allowDiagonal = opt.allowDiagonal;
     this.dontCrossCorners = opt.dontCrossCorners;
@@ -25,39 +27,37 @@ function BiAStarFinder(opt) {
     this.weight = opt.weight || 1;
 
     if (!this.diagonalMovement) {
-        if (!this.allowDiagonal) {
-            this.diagonalMovement = DiagonalMovement.Never;
-        } else {
-            if (this.dontCrossCorners) {
-                this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
-            } else {
-                this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
-            }
-        }
+      if (!this.allowDiagonal) {
+        this.diagonalMovement = DiagonalMovement.Never;
+      } else {
+          if (this.dontCrossCorners) {
+            this.diagonalMovement = DiagonalMovement.OnlyWhenNoObstacles;
+          } else {
+            this.diagonalMovement = DiagonalMovement.IfAtMostOneObstacle;
+          }
+      }
     }
 
     //When diagonal movement is allowed the manhattan heuristic is not admissible
     //It should be octile instead
     if (this.diagonalMovement === DiagonalMovement.Never) {
-        this.heuristic = opt.heuristic || Heuristic.manhattan;
+      this.heuristic = opt.heuristic || Heuristic.manhattan;
     } else {
-        this.heuristic = opt.heuristic || Heuristic.octile;
+      this.heuristic = opt.heuristic || Heuristic.octile;
     }
-}
+  }
 
-/**
- * Find and return the the path.
- * @return {Array.<[number, number]>} The path, including both start and
- *     end positions.
- */
-BiAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
-    var cmp = function(nodeA, nodeB) {
-            return nodeA.f - nodeB.f;
-        },
+  /**
+   * Find and return the the path.
+   * @return {Array.<[number, number]>} The path, including both start and
+   *     end positions.
+   */
+  findPath (start, end, grid) {
+    var cmp = (nodeA, nodeB) => nodeA.f - nodeB.f,
         startOpenList = new Heap(cmp),
         endOpenList = new Heap(cmp),
-        startNode = grid.getNodeAt(startX, startY),
-        endNode = grid.getNodeAt(endX, endY),
+        startNode = grid.getNodeAt(start),
+        endNode = grid.getNodeAt(end),
         heuristic = this.heuristic,
         diagonalMovement = this.diagonalMovement,
         weight = this.weight,
@@ -95,7 +95,7 @@ BiAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
                 continue;
             }
             if (neighbor.opened === BY_END) {
-                return Util.biBacktrace(node, neighbor);
+                return biBacktrace(node, neighbor);
             }
 
             x = neighbor.x;
@@ -138,8 +138,9 @@ BiAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
             if (neighbor.closed) {
                 continue;
             }
+
             if (neighbor.opened === BY_START) {
-                return Util.biBacktrace(neighbor, node);
+                return biBacktrace(neighbor, node);
             }
 
             x = neighbor.x;
@@ -172,6 +173,5 @@ BiAStarFinder.prototype.findPath = function(startX, startY, endX, endY, grid) {
 
     // fail to find the path
     return [];
-};
-
-module.exports = BiAStarFinder;
+  }
+}

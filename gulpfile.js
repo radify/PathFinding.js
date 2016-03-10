@@ -98,5 +98,4 @@ gulp.task('release', ['compile'], function(cb) {
     });
 });
 
-gulp.task('default', ['lint', 'test', 'compile'], function() {
-});
+gulp.task('default', ['lint', 'test', 'compile'], function() {});

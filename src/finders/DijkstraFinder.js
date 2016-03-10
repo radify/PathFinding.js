@@ -1,4 +1,4 @@
-var AStarFinder = require('./AStarFinder');
+import AStarFinder from './AStarFinder';
 
 /**
  * Dijkstra path-finder.
@@ -9,14 +9,13 @@ var AStarFinder = require('./AStarFinder');
  * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching block corners. Deprecated, use diagonalMovement instead.
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
-function DijkstraFinder(opt) {
-    AStarFinder.call(this, opt);
-    this.heuristic = function(dx, dy) {
-        return 0;
-    };
+export default class DijkstraFinder extends AStarFinder {
+
+  constructor(opt) {
+    super(opt);
+  }
+
+  heuristic(dx, dy) {
+    return 0;
+  }
 }
-
-DijkstraFinder.prototype = new AStarFinder();
-DijkstraFinder.prototype.constructor = DijkstraFinder;
-
-module.exports = DijkstraFinder;

@@ -1,4 +1,4 @@
-var BiAStarFinder = require('./BiAStarFinder');
+import BiAStarFinder from './BiAStarFinder';
 
 /**
  * Bi-directional Dijkstra path-finder.
@@ -9,14 +9,12 @@ var BiAStarFinder = require('./BiAStarFinder');
  * @param {boolean} opt.dontCrossCorners Disallow diagonal movement touching block corners. Deprecated, use diagonalMovement instead.
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  */
-function BiDijkstraFinder(opt) {
-    BiAStarFinder.call(this, opt);
-    this.heuristic = function(dx, dy) {
-        return 0;
-    };
+export default class BiDijkstraFinder extends BiAStarFinder {
+  constructor(opt) {
+    super(opt);
+  }
+
+  heuristic(dx, dy) {
+    return 0;
+  }
 }
-
-BiDijkstraFinder.prototype = new BiAStarFinder();
-BiDijkstraFinder.prototype.constructor = BiDijkstraFinder;
-
-module.exports = BiDijkstraFinder;
